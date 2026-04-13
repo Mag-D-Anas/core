@@ -106,13 +106,17 @@ jobs:
         run: |
           . .env
           ctest --rerun-failed --output-on-failure -V -j1 2>&1 | tee ctest_failed.log
+        env:
+          TSAN_OPTIONS: "suppressions=/Users/runner/work/core/core/source/tests/sanitizer/tsan.supp:log_path=tsan_output:halt_on_error=0:verbose=1"
 
-      - name: Upload Failed Test Logs
-        if: failure()
+      - name: Upload TSan + Test Logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: failed-tests-${{ matrix.os }}-${{ matrix.options.build }}-${{ matrix.options.sanitizer }}
-          path: build/ctest_failed.log
+          name: tsan-logs-${{ matrix.os }}-${{ matrix.options.build }}-${{ matrix.options.sanitizer }}
+          path: |
+            build/ctest_failed.log
+            build/tsan_output.*
           retention-days: 7
 
   macos-distributable:
