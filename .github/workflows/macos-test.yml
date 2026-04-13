@@ -98,6 +98,22 @@ jobs:
           bash ../tools/metacall-build.sh $METACALL_BUILD_OPTIONS
         env:
           METACALL_BUILD_OPTIONS: ${{ matrix.options.build }} tests install
+          continue-on-error: true  # don't stop here, let next step re-run failures
+
+      - name: Rerun Failed Tests (Serial + Verbose)
+        if: always()
+        working-directory: ./build
+        run: |
+          . .env
+          ctest --rerun-failed --output-on-failure -V -j1 2>&1 | tee ctest_failed.log
+
+      - name: Upload Failed Test Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-tests-${{ matrix.os }}-${{ matrix.options.build }}-${{ matrix.options.sanitizer }}
+          path: build/ctest_failed.log
+          retention-days: 7
 
   macos-distributable:
     name: MacOS Distributable Dispatch
