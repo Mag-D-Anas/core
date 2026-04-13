@@ -406,8 +406,7 @@ TEST_F(metacall_rpc_test, AsyncConcurrentProducers)
 					metacall_value_destroy(args[1]);
 				}
 
-				std::cout << "Thread " << t << ": dispatched "
-						  << CALLS_PER_THREAD << " calls" << std::endl;
+				printf("Thread %d: dispatched %d calls\n", t, CALLS_PER_THREAD);
 			});
 		}
 
